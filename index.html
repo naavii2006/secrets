@@ -12,7 +12,6 @@
   --text:#e6eef8;
   --accent:#00f0ff;
   --accent2:#ff00ff;
-  --trap:#ff0000;
 }
 body{
   margin:0;
@@ -74,13 +73,6 @@ input{
   color:var(--text);
   font-size:0.8em;
 }
-
-/* MOBILE-ONLY: Hide on larger screens */
-@media screen and (min-width:600px){
-  body{
-    display:none;
-  }
-}
 </style>
 </head>
 <body>
@@ -97,77 +89,66 @@ input{
 const puzzleContainer = document.getElementById('puzzle-container');
 const secretDiv = document.getElementById('secret');
 
-// Puzzle pools
-const puzzlePool = {
-  easy: [
-    {q:"5 + 7 * 2 = ?", a:"19"},
-    {q:"12 - 4 + 3 = ?", a:"11"},
-    {q:"If 2x=10, x=?", a:"5"},
-    {q:"Tanmay scored 5 points each day for 3 days, total points?", a:"15"}
-  ],
-  medium: [
-    {q:"x + 2y = 10 and x - y = 3, find x,y (format: x,y)", a:"4,3"},
-    {q:"Next number: 1,1,2,6,24, ?", a:"120"},
-    {q:"Solve: 3x - 7 = 5", a:"4"},
-    {q:"Tanmay collected 12 stickers, then 8 more, how many total?", a:"20"}
-  ],
-  impossible: [
-    {q:"Tanmay wrote a polynomial P(x) of degree 3 such that P(1)=2, P(2)=5, P(3)=10, P(4)=17. Find P(5).", a:"26"},
-    {q:"A triangle has sides a, b, c. If a+b+c=12 and ab+bc+ca=23, find a^2+b^2+c^2.", a:"14"},
-    {q:"Tanmay rolls 3 dice. Probability all show different numbers? Give as fraction.", a:"5/9"},
-    {q:"Solve for x: sqrt(x+10) + sqrt(x) = 10", a:"15"},
-    {q:"If Tanmay chooses 2 numbers from 1..10, probability their sum is even?", a:"2/5"},
-    {q:"Evaluate limit as x->0: (tan 5x - tan 3x)/x", a:"2"},
-    {q:"Tanmay finds sum of squares of first 10 odd numbers. Result?", a:"385"}
-  ]
-};
-
-const jokes = [
-  "😅 Tanmay is laughing at your math skills!",
-  "🤣 You need more school… Tanmay knows better!",
-  "😂 Even Tanmay would solve faster!",
-  "🙃 Did you even read the question? Tanmay would cry!",
-  "😜 Keep trying… Tanmay says 'No cheating!'"
+// 30 medium-level questions
+const mediumQuestions = [
+  {q:"x + 2y = 10 and x - y = 3, find x,y (format: x,y)", a:"4,3"},
+  {q:"Next number: 1,1,2,6,24, ?", a:"120"},
+  {q:"Solve: 3x - 7 = 5", a:"4"},
+  {q:"Tanmay collected 12 stickers, then 8 more, how many total?", a:"20"},
+  {q:"If x/2 + 3 = 7, x=?", a:"8"},
+  {q:"Next number: 2,4,8,16, ?", a:"32"},
+  {q:"Solve: 5x + 3 = 23", a:"4"},
+  {q:"Tanmay has 15 apples, gives 7, how many left?", a:"8"},
+  {q:"2x + 3y = 12, x - y = 2, find x,y (format: x,y)", a:"4,2"},
+  {q:"Next number: 3,6,12,24, ?", a:"48"},
+  {q:"Solve: 7x - 14 = 0", a:"2"},
+  {q:"Tanmay bought 3 pens at $2 each and 2 notebooks at $3 each, total cost?", a:"12"},
+  {q:"If 4x - 5 = 11, x=?", a:"4"},
+  {q:"Next number: 5,10,20,40, ?", a:"80"},
+  {q:"Solve: 2x + 7 = 15", a:"4"},
+  {q:"Tanmay ran 5 km each day for 4 days, total distance?", a:"20"},
+  {q:"x + y = 9 and x - y = 1, find x,y (format: x,y)", a:"5,4"},
+  {q:"Next number: 0,1,1,2,3, ?", a:"5"},
+  {q:"Solve: 6x - 9 = 15", a:"4"},
+  {q:"Tanmay has 20 candies, eats 7, how many left?", a:"13"},
+  {q:"If x/3 + 4 = 8, x=?", a:"12"},
+  {q:"Next number: 2,3,5,8,13, ?", a:"21"},
+  {q:"Solve: 8x - 16 = 16", a:"4"},
+  {q:"Tanmay picked 7 flowers each day for 3 days, total?", a:"21"},
+  {q:"x + 3y = 15 and 2x - y = 4, find x,y (format: x,y)", a:"4,3"},
+  {q:"Next number: 1,4,9,16, ?", a:"25"},
+  {q:"Solve: 3x + 5 = 17", a:"4"},
+  {q:"Tanmay read 6 pages per day for 5 days, total pages?", a:"30"},
+  {q:"If 5x - 10 = 10, x=?", a:"4"},
+  {q:"Next number: 1,2,4,8, ?", a:"16"}
 ];
 
-let stageOrder = ["easy","medium","impossible"];
-let currentStage=0;
-let currentPuzzle=null;
+let attempts = 0;
+let currentIndex = 0;
 
-function randomJoke(){ return jokes[Math.floor(Math.random()*jokes.length)]; }
-function pickPuzzle(stage){ const pool = puzzlePool[stage]; return pool[Math.floor(Math.random()*pool.length)]; }
 function loadPuzzle(){ 
-  const stage = stageOrder[currentStage];
-  currentPuzzle = pickPuzzle(stage);
+  if(currentIndex >= mediumQuestions.length){
+    secretDiv.innerHTML="<h2>🎉 All questions completed!</h2>";
+    puzzleContainer.style.display="none";
+    return;
+  }
+  currentPuzzle = mediumQuestions[currentIndex];
   document.getElementById('puzzle').textContent = currentPuzzle.q;
   document.getElementById('answer').value='';
 }
 
-function triggerTrap(){
-  puzzleContainer.style.transform="translateX(-15px)";
-  setTimeout(()=>puzzleContainer.style.transform="translateX(15px)",100);
-  setTimeout(()=>puzzleContainer.style.transform="translateX(-15px)",200);
-  setTimeout(()=>puzzleContainer.style.transform="translateX(0px)",300);
-  secretDiv.textContent = randomJoke();
-}
-
 function submitAnswer(){
-  const ans=document.getElementById('answer').value.trim();
-  if(ans === currentPuzzle.a){
-    secretDiv.innerHTML="💥 Correct! Tanmay is impressed!";
-    currentStage++;
-    if(currentStage >= stageOrder.length){
-      secretDiv.innerHTML="<h3>🎉 You reached the end! But Tanmay pranked you anyway! 😂</h3>";
-      puzzleContainer.innerHTML="<h3>All puzzles completed!</h3>";
-      return;
-    }
-    loadPuzzle();
-  } else {
-    triggerTrap();
-    loadPuzzle();
+  attempts++;
+  currentIndex++;
+  if(attempts >= 5){
+    secretDiv.innerHTML="<h1 style='color:#ff00ff; font-size:32px;'>Padh le chutiye</h1>";
+    puzzleContainer.style.display="none";
+    return;
   }
+  loadPuzzle();
 }
 
+// Start the first puzzle
 loadPuzzle();
 </script>
 </body>
