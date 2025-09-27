@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tanmay’s Ultimate Challenge</title>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b1220;
+  --text:#e6eef8;
+  --accent:#00f0ff;
+  --accent2:#ff00ff;
+  --trap:#ff0000;
+}
+body{margin:0;font-family:'VT323',monospace;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
+h1{font-family:'Press Start 2P',cursive;color:var(--accent);text-shadow:0 0 8px var(--accent);text-align:center;margin:20px;}
+button{font-family:'Press Start 2P',cursive;background:var(--bg);border:2px solid var(--accent);color:var(--accent2);padding:10px 20px;margin:10px;cursor:pointer;}
+button:hover{box-shadow:0 0 12px var(--accent),0 0 24px var(--accent2);}
+#puzzle-container{background:#111;padding:20px;border:2px solid var(--accent);border-radius:8px;margin-top:20px;width:500px;text-align:center;transition: transform 0.2s;}
+#secret{color:#ffff00;margin-top:20px;font-family:'Press Start 2P';font-size:14px;text-align:center;min-height:60px;}
+input{padding:8px;margin-top:10px;width:80%;border:2px solid var(--accent);background:#111;color:var(--text);}
+</style>
+</head>
+<body>
+
+<h1>Tanmay’s Secret Challenge</h1>
+<div id="puzzle-container">
+  <div id="puzzle">Loading question...</div>
+  <input type="text" id="answer" placeholder="Enter your answer">
+  <button onclick="submitAnswer()">Submit</button>
+</div>
+<div id="secret">Solve puzzles to reveal Tanmay’s secrets!</div>
+
+<script>
+const puzzleContainer = document.getElementById('puzzle-container');
+const secretDiv = document.getElementById('secret');
+
+// Pool of questions
+const puzzlePool = {
+  easy: [
+    {q:"5 + 7 * 2 = ?", a:"19"},
+    {q:"12 - 4 + 3 = ?", a:"11"},
+    {q:"If 2x=10, x=?", a:"5"},
+    {q:"Tanmay scored 5 points each day for 3 days, total points?", a:"15"}
+  ],
+  medium: [
+    {q:"x + 2y = 10 and x - y = 3, find x,y (format: x,y)", a:"4,3"},
+    {q:"Next number: 1,1,2,6,24, ?", a:"120"},
+    {q:"Solve: 3x - 7 = 5", a:"4"},
+    {q:"Tanmay collected 12 stickers, then 8 more, how many total?", a:"20"}
+  ],
+  impossible: [
+    // JEE Advanced-level numeric / tricky logic problems
+    {q:"Tanmay wrote a polynomial P(x) of degree 3 such that P(1)=2, P(2)=5, P(3)=10, P(4)=17. Find P(5).", a:"26"},
+    {q:"A triangle has sides a, b, c. If a+b+c=12 and ab+bc+ca=23, find a^2+b^2+c^2.", a:"14"},
+    {q:"Tanmay rolls 3 dice. Probability all show different numbers? Give as fraction.", a:"5/9"},
+    {q:"Solve for x: sqrt(x+10) + sqrt(x) = 10", a:"15"},
+    {q:"If Tanmay chooses 2 numbers from 1..10, probability their sum is even?", a:"2/5"},
+    {q:"Evaluate limit as x->0: (tan 5x - tan 3x)/x", a:"2"},
+    {q:"Tanmay finds sum of squares of first 10 odd numbers. Result?", a:"385"}
+  ]
+};
+
+const jokes = [
+  "😅 Tanmay is laughing at your math skills!",
+  "🤣 You need more school… Tanmay knows better!",
+  "😂 Even Tanmay would solve faster!",
+  "🙃 Did you even read the question? Tanmay would cry!",
+  "😜 Keep trying… Tanmay says 'No cheating!'"
+];
+
+let stageOrder = ["easy","medium","impossible"];
+let currentStage=0;
+let currentPuzzle=null;
+
+function randomJoke(){
+  return jokes[Math.floor(Math.random()*jokes.length)];
+}
+
+function pickPuzzle(stage){
+  const pool = puzzlePool[stage];
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+function loadPuzzle(){
+  const stage = stageOrder[currentStage];
+  currentPuzzle = pickPuzzle(stage);
+  document.getElementById('puzzle').textContent = currentPuzzle.q;
+  document.getElementById('answer').value='';
+}
+
+function triggerTrap(){
+  // screen shake
+  puzzleContainer.style.transform="translateX(-15px)";
+  setTimeout(()=>puzzleContainer.style.transform="translateX(15px)",100);
+  setTimeout(()=>puzzleContainer.style.transform="translateX(-15px)",200);
+  setTimeout(()=>puzzleContainer.style.transform="translateX(0px)",300);
+  // show joke with Tanmay's name
+  secretDiv.textContent = randomJoke();
+}
+
+function submitAnswer(){
+  const ans=document.getElementById('answer').value.trim();
+  
+  if(ans === currentPuzzle.a){
+    secretDiv.innerHTML="💥 Correct! Tanmay is impressed!";
+    currentStage++;
+    if(currentStage >= stageOrder.length){
+      secretDiv.innerHTML="<h3>🎉 You reached the end! But Tanmay pranked you anyway! 😂</h3>";
+      puzzleContainer.innerHTML="<h3>All puzzles completed!</h3>";
+      return;
+    }
+    loadPuzzle();
+  } else {
+    triggerTrap();
+    loadPuzzle(); // new random puzzle in same stage
+  }
+}
+
+loadPuzzle();
+</script>
+</body>
+</html>
