@@ -14,13 +14,73 @@
   --accent2:#ff00ff;
   --trap:#ff0000;
 }
-body{margin:0;font-family:'VT323',monospace;background:var(--bg);color:var(--text);display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;}
-h1{font-family:'Press Start 2P',cursive;color:var(--accent);text-shadow:0 0 8px var(--accent);text-align:center;margin:20px;}
-button{font-family:'Press Start 2P',cursive;background:var(--bg);border:2px solid var(--accent);color:var(--accent2);padding:10px 20px;margin:10px;cursor:pointer;}
-button:hover{box-shadow:0 0 12px var(--accent),0 0 24px var(--accent2);}
-#puzzle-container{background:#111;padding:20px;border:2px solid var(--accent);border-radius:8px;margin-top:20px;width:500px;text-align:center;transition: transform 0.2s;}
-#secret{color:#ffff00;margin-top:20px;font-family:'Press Start 2P';font-size:14px;text-align:center;min-height:60px;}
-input{padding:8px;margin-top:10px;width:80%;border:2px solid var(--accent);background:#111;color:var(--text);}
+body{
+  margin:0;
+  font-family:'VT323',monospace;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100vh;
+}
+h1{
+  font-family:'Press Start 2P',cursive;
+  color:var(--accent);
+  text-shadow:0 0 8px var(--accent);
+  text-align:center;
+  margin:20px;
+  font-size:1.2em;
+}
+button{
+  font-family:'Press Start 2P',cursive;
+  background:var(--bg);
+  border:2px solid var(--accent);
+  color:var(--accent2);
+  padding:15px 20px;
+  margin:10px 0;
+  cursor:pointer;
+  font-size:0.8em;
+}
+button:hover{
+  box-shadow:0 0 12px var(--accent),0 0 24px var(--accent2);
+}
+#puzzle-container{
+  background:#111;
+  padding:20px;
+  border:2px solid var(--accent);
+  border-radius:8px;
+  margin-top:20px;
+  width:90%;
+  max-width:400px;
+  text-align:center;
+  transition: transform 0.2s;
+}
+#secret{
+  color:#ffff00;
+  margin-top:20px;
+  font-family:'Press Start 2P';
+  font-size:14px;
+  text-align:center;
+  min-height:60px;
+}
+input{
+  padding:12px;
+  margin-top:10px;
+  width:90%;
+  border:2px solid var(--accent);
+  background:#111;
+  color:var(--text);
+  font-size:0.8em;
+}
+
+/* MOBILE-ONLY: Hide on larger screens */
+@media screen and (min-width:600px){
+  body{
+    display:none;
+  }
+}
 </style>
 </head>
 <body>
@@ -37,7 +97,7 @@ input{padding:8px;margin-top:10px;width:80%;border:2px solid var(--accent);backg
 const puzzleContainer = document.getElementById('puzzle-container');
 const secretDiv = document.getElementById('secret');
 
-// Pool of questions
+// Puzzle pools
 const puzzlePool = {
   easy: [
     {q:"5 + 7 * 2 = ?", a:"19"},
@@ -52,7 +112,6 @@ const puzzlePool = {
     {q:"Tanmay collected 12 stickers, then 8 more, how many total?", a:"20"}
   ],
   impossible: [
-    // JEE Advanced-level numeric / tricky logic problems
     {q:"Tanmay wrote a polynomial P(x) of degree 3 such that P(1)=2, P(2)=5, P(3)=10, P(4)=17. Find P(5).", a:"26"},
     {q:"A triangle has sides a, b, c. If a+b+c=12 and ab+bc+ca=23, find a^2+b^2+c^2.", a:"14"},
     {q:"Tanmay rolls 3 dice. Probability all show different numbers? Give as fraction.", a:"5/9"},
@@ -75,16 +134,9 @@ let stageOrder = ["easy","medium","impossible"];
 let currentStage=0;
 let currentPuzzle=null;
 
-function randomJoke(){
-  return jokes[Math.floor(Math.random()*jokes.length)];
-}
-
-function pickPuzzle(stage){
-  const pool = puzzlePool[stage];
-  return pool[Math.floor(Math.random()*pool.length)];
-}
-
-function loadPuzzle(){
+function randomJoke(){ return jokes[Math.floor(Math.random()*jokes.length)]; }
+function pickPuzzle(stage){ const pool = puzzlePool[stage]; return pool[Math.floor(Math.random()*pool.length)]; }
+function loadPuzzle(){ 
   const stage = stageOrder[currentStage];
   currentPuzzle = pickPuzzle(stage);
   document.getElementById('puzzle').textContent = currentPuzzle.q;
@@ -92,18 +144,15 @@ function loadPuzzle(){
 }
 
 function triggerTrap(){
-  // screen shake
   puzzleContainer.style.transform="translateX(-15px)";
   setTimeout(()=>puzzleContainer.style.transform="translateX(15px)",100);
   setTimeout(()=>puzzleContainer.style.transform="translateX(-15px)",200);
   setTimeout(()=>puzzleContainer.style.transform="translateX(0px)",300);
-  // show joke with Tanmay's name
   secretDiv.textContent = randomJoke();
 }
 
 function submitAnswer(){
   const ans=document.getElementById('answer').value.trim();
-  
   if(ans === currentPuzzle.a){
     secretDiv.innerHTML="💥 Correct! Tanmay is impressed!";
     currentStage++;
@@ -115,7 +164,7 @@ function submitAnswer(){
     loadPuzzle();
   } else {
     triggerTrap();
-    loadPuzzle(); // new random puzzle in same stage
+    loadPuzzle();
   }
 }
 
